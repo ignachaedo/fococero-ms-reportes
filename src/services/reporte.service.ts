@@ -7,6 +7,7 @@ import { UserRole } from '../models/user.enum';
 import { AppError } from '../helpers/appError';
 import { envs } from '../config/envs';
 import { logger } from '../config/logger';
+import { ReportePublisher } from '../events/reporte.publisher';
 
 const ESTADOS_FINALES = new Set<EstadoReporte>([
     EstadoReporte.RESUELTO,
@@ -41,6 +42,14 @@ export class ReporteService {
             // Se ejecuta de forma asíncrona para no bloquear la respuesta al usuario
             this.vincularMultimedia(id_multimedia, data.id_ciudadano, nuevoReporte.id);
         }
+
+        // 3. Publicamos evento de reporte creado en el bus de eventos (RabbitMQ)
+        //    Se ejecuta de forma asíncrona para no bloquear la respuesta al usuario
+        ReportePublisher.publicarReporteCreado(nuevoReporte as unknown as Record<string, unknown>).catch(
+            (err) => {
+                logger.error({ err }, '[ReporteService] Error publicando evento de creación');
+            },
+        );
 
         return nuevoReporte;
     }

@@ -22,6 +22,7 @@ import { internalAuthMiddleware } from './middlewares/internalAuth.middleware';
 import { logger } from './config/logger';
 
 import { initEurekaClient } from './config/eureka.client.js';
+import { rabbitMQBus } from './config/rabbitmq';
 
 const app: Application = express();
 
@@ -127,6 +128,9 @@ const server = app.listen(envs.PORT, async () => {
     logger.info(`====================================================`);
 
     initEurekaClient('ms-reportes', Number(envs.PORT));
+
+    // 🐇 Conexión al Event Bus (RabbitMQ)
+    await rabbitMQBus.connect();
     
 });
 
@@ -139,9 +143,13 @@ const gracefulShutdown = async (signal: string) => {
         try {
             await pool.end();
             logger.info('✅ Conexiones a la base de datos cerradas.');
+
+            await rabbitMQBus.close();
+            logger.info('✅ Conexión a RabbitMQ cerrada.');
+
             process.exit(0);
         } catch (err) {
-            logger.error({ err }, '❌ Error al cerrar conexiones DB');
+            logger.error({ err }, '❌ Error al cerrar conexiones DB o RabbitMQ');
             process.exit(1);
         }
     });

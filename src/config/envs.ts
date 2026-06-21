@@ -28,6 +28,9 @@ export const envs = {
     // 🔐 Secreto interno para comunicación entre microservicios
     INTERNAL_SECRET_TOKEN: env.get('INTERNAL_SECRET_TOKEN').required().asString(),
 
+    // RabbitMQ (Event Bus)
+    RABBITMQ_URL: env.get('RABBITMQ_URL').default('amqp://guest:guest@rabbitmq:5672').asString(),
+
     // Firebase y Seguridad
     FIREBASE_PROJECT_ID: env.get('FIREBASE_PROJECT_ID').required().asString(),
     FIREBASE_CLIENT_EMAIL: env.get('FIREBASE_CLIENT_EMAIL').required().asString(),
