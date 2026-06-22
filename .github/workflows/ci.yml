@@ -12,7 +12,6 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-        working-directory: ./ms-reportes
 
     steps:
       - name: Checkout repository

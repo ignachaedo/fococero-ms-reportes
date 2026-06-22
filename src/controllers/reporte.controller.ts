@@ -1,4 +1,8 @@
-// ms-reportes/src/controllers/reporte.controller.ts
+/**
+ * @fileoverview Controlador de reportes ciudadanos.
+ * Expone los endpoints HTTP para gestionar reportes de incidentes,
+ * categorías, cambio de estado e historial de trazabilidad.
+ */
 
 import { Request, Response } from 'express';
 import { ReporteService } from '../services/reporte.service';
@@ -18,6 +22,12 @@ export class ReporteController {
         });
     });
 
+    /**
+     * Obtiene una categoría de incidente por su ID.
+     *
+     * @param req - Request con params.id
+     * @param res - Response 200 con { ok, data }
+     */
     static obtenerCategoriaPorId = catchAsync(async (req: Request, res: Response) => {
         const id = String(req.params.id);
         const categoria = await ReporteService.obtenerCategoriaPorId(id);
@@ -96,6 +106,12 @@ export class ReporteController {
         });
     });
 
+    /**
+     * Obtiene un reporte por su ID.
+     *
+     * @param req - Request con params.id
+     * @param res - Response 200 con { ok, data }
+     */
     static obtenerReportePorId = catchAsync(async (req: Request, res: Response) => {
         const id = String(req.params.id);
         const reporte = await ReporteService.obtenerReportePorId(id);

@@ -1,19 +1,24 @@
-// ms-reportes/src/validators/reporte.validator.ts
+/**
+ * @fileoverview Esquemas Zod para validación de operaciones CRUD de reportes.
+ * Define schemas para creación, actualización parcial, cambio de estado y
+ * eliminación de reportes ciudadanos.
+ */
 
 import { z } from 'zod';
 import { EstadoReporte } from '../models/reporte.model';
 
-// 1. Validador base reutilizable para parámetros de URL
+/** Validador base reutilizable para ID en parámetros de URL */
 const idParamSchema = z.object({
     id: z.string().uuid({ message: 'El ID del reporte debe ser un UUID válido.' }),
 });
 
-// 2. Validador base reutilizable para metadata (Cero 'any', usamos 'unknown' estructurado)
+/** Validador base reutilizable para metadatos (structura llave-valor) */
 const metadataSchema = z.record(z.string(), z.unknown()).optional();
 
-// ============================================================================
-// 🟢 VALIDACIÓN DE CREACIÓN (POST /)
-// ============================================================================
+/**
+ * Esquema para validar la creación de un reporte (POST /).
+ * Requiere categoria_id, titulo, descripción, latitud y longitud.
+ */
 export const crearReporteSchema = z.object({
     body: z
         .object({
@@ -30,9 +35,10 @@ export const crearReporteSchema = z.object({
         }),
 });
 
-// ============================================================================
-// 🟡 VALIDACIÓN DE ACTUALIZACIÓN PARCIAL (PATCH /:id)
-// ============================================================================
+/**
+ * Esquema para validar actualización parcial de un reporte (PATCH /:id).
+ * Todos los campos son opcionales, pero al menos uno debe estar presente.
+ */
 export const actualizarReporteSchema = z.object({
     params: idParamSchema,
     body: z
@@ -51,9 +57,10 @@ export const actualizarReporteSchema = z.object({
         }),
 });
 
-// ============================================================================
-// 🟠 VALIDACIÓN OPERATIVA DE ESTADOS (PATCH /:id/estado)
-// ============================================================================
+/**
+ * Esquema para validar cambio de estado de un reporte (PATCH /:id/estado).
+ * Requiere un nuevoEstado válido del enum EstadoReporte y comentarios opcionales.
+ */
 export const cambiarEstadoSchema = z.object({
     params: idParamSchema,
     body: z
@@ -69,9 +76,10 @@ export const cambiarEstadoSchema = z.object({
         .strict(),
 });
 
-// ============================================================================
-// 🔴 VALIDACIÓN DE ELIMINACIÓN (DELETE /:id)
-// ============================================================================
+/**
+ * Esquema para validar eliminación de un reporte (DELETE /:id).
+ * Solo requiere un UUID válido en los parámetros de ruta.
+ */
 export const eliminarReporteSchema = z.object({
     params: idParamSchema,
 });

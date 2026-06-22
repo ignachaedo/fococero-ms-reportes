@@ -1,4 +1,7 @@
-// ms-reportes/src/middlewares/error.middleware.ts
+/**
+ * @fileoverview Manejador global de errores para ms-reportes.
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/logger';
 
@@ -7,6 +10,14 @@ interface AppError extends Error {
     code?: string;
 }
 
+/**
+ * Middleware global de manejo de errores para ms-reportes.
+ *
+ * @param err - Error capturado
+ * @param _req - Objeto Request de Express
+ * @param res - Objeto Response de Express
+ * @param _next - Función NextFunction de Express
+ */
 export const errorHandler = (
     err: unknown,
     _req: Request,

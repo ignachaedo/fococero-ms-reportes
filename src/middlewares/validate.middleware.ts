@@ -1,8 +1,16 @@
-// src/middlewares/validate.middleware.ts
+/**
+ * @fileoverview Middleware validador Zod para ms-reportes.
+ */
 
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
 
+/**
+ * Middleware que valida la petición contra un esquema Zod.
+ *
+ * @param schema - Esquema Zod de validación
+ * @returns Middleware function de Express
+ */
 export const validateSchema = (schema: ZodSchema) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const resultado = await schema.safeParseAsync({

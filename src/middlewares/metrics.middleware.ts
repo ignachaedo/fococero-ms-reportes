@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Middleware de métricas Prometheus para ms-reportes.
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import client from 'prom-client';
 
@@ -20,6 +24,13 @@ const httpRequestDuration = new client.Histogram({
   registers: [register],
 });
 
+/**
+ * Middleware que registra métricas de peticiones HTTP.
+ *
+ * @param req - Objeto Request de Express
+ * @param res - Objeto Response de Express
+ * @param next - Función NextFunction de Express
+ */
 export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   res.on('finish', () => {
@@ -30,6 +41,12 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
   next();
 };
 
+/**
+ * Handler que expone métricas Prometheus.
+ *
+ * @param _req - Request (no utilizado)
+ * @param res - Response con Content-Type text/plain
+ */
 export const metricsHandler = async (_req: Request, res: Response) => {
   res.set('Content-Type', register.contentType);
   res.end(await register.metrics());
