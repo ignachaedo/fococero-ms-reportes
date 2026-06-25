@@ -1,13 +1,4 @@
-/**
- * @fileoverview Clase AppError para errores operativos de ms-reportes.
- * Proporciona mensaje descriptivo y código de estado HTTP para
- * que el error.middleware responda adecuadamente.
- */
-
-/**
- * Error operativo personalizado para la lógica de negocio de reportes.
- * Incluye statusCode para que el manejador global responda con el código HTTP correcto.
- */
+// src/helpers/appError.ts
 export class AppError extends Error {
     public readonly statusCode: number;
     

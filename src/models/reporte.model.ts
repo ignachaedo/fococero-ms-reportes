@@ -35,7 +35,6 @@ export interface IReporte {
     categoria_id: string;
     titulo: string;
     descripcion: string;
-    direccion?: string;
     latitud: number;
     longitud: number;
     ubicacion?: IGeoPoint;

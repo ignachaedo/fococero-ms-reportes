@@ -18,7 +18,6 @@ router.use(validateFirebaseToken);
 
 // --- CATEGORÍAS ---
 router.get('/categorias', ReporteController.obtenerCategorias);
-router.get('/categorias/:id', ReporteController.obtenerCategoriaPorId);
 
 // --- ZONA CIUDADANA ---
 router.post('/', validateSchema(crearReporteSchema), ReporteController.crearReporte);

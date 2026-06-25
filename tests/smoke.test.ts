@@ -1,10 +1,6 @@
-/**
- * Pruebas de humo (smoke tests) para ms-reportes
- * 
- * @module smoke
- */
+// ms-reportes/tests/smoke.test.ts
 
-describe('Prueba de Humo - ms-reportes', () => {
+describe('Smoke Test - ms-reportes', () => {
     it('debería confirmar que el entorno de pruebas está configurado', () => {
         const proyecto = 'FocoCero';
         expect(proyecto).toBe('FocoCero');

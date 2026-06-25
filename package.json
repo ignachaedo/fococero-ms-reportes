@@ -1,5 +1,5 @@
 {
-    "name": "ms-reportes",
+    "name": "fococero-ms-reportes",
     "version": "1.0.0",
     "description": "Microservicio de Reportes - FocoCero",
     "main": "dist/index.js",

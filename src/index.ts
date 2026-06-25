@@ -18,11 +18,9 @@ import './config/firebase';
 import reporteRoutes from './routes/reporte.routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { metricsMiddleware, metricsHandler } from './middlewares/metrics.middleware';
-import { internalAuthMiddleware } from './middlewares/internalAuth.middleware';
 import { logger } from './config/logger';
 
 import { initEurekaClient } from './config/eureka.client.js';
-import { rabbitMQBus } from './config/rabbitmq';
 
 const app: Application = express();
 
@@ -94,9 +92,6 @@ app.get('/api/health', (req: Request, res: Response) => {
 // 📊 Endpoint de métricas Prometheus
 app.get('/metrics', metricsHandler);
 
-// 🔐 Seguridad interna para el resto de las rutas
-app.use(internalAuthMiddleware);
-
 // ✅ FIX ARQUITECTÓNICO: Escuchamos en la raíz para que el API Gateway gestione el prefijo limpio
 app.use('/', reporteRoutes);
 
@@ -128,9 +123,6 @@ const server = app.listen(envs.PORT, async () => {
     logger.info(`====================================================`);
 
     initEurekaClient('ms-reportes', Number(envs.PORT));
-
-    // 🐇 Conexión al Event Bus (RabbitMQ)
-    await rabbitMQBus.connect();
     
 });
 
@@ -143,13 +135,9 @@ const gracefulShutdown = async (signal: string) => {
         try {
             await pool.end();
             logger.info('✅ Conexiones a la base de datos cerradas.');
-
-            await rabbitMQBus.close();
-            logger.info('✅ Conexión a RabbitMQ cerrada.');
-
             process.exit(0);
         } catch (err) {
-            logger.error({ err }, '❌ Error al cerrar conexiones DB o RabbitMQ');
+            logger.error({ err }, '❌ Error al cerrar conexiones DB');
             process.exit(1);
         }
     });

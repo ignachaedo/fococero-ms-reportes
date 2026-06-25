@@ -1,8 +1,4 @@
-/**
- * @fileoverview Repositorio de reportes ciudadanos con PostGIS.
- * Maneja operaciones CRUD sobre reportes y categorías de incidentes,
- * incluyendo consultas espaciales e historial de estados con transacciones.
- */
+// src/repositories/reporte.repository.ts
 
 import { PoolClient, QueryConfig } from 'pg';
 import { pool } from '../config/db';
@@ -18,9 +14,7 @@ import {
 export class ReporteRepository {
     // --- CATEGORÍAS ---
     /**
-     * Obtiene el catálogo de categorías de incidentes activas.
-     *
-     * @returns Lista de categorías ordenadas por nivel de prioridad descendente
+     * Obtiene el catálogo de categorías activas para el frontend.
      */
     static async obtenerCategorias(): Promise<ICategoriaIncidente[]> {
         const query =
@@ -29,32 +23,17 @@ export class ReporteRepository {
         return result.rows;
     }
 
-    /**
-     * Obtiene una categoría de incidente por su ID.
-     *
-     * @param id - UUID de la categoría
-     * @returns La categoría encontrada o null si no existe
-     */
-    static async obtenerCategoriaPorId(id: string): Promise<ICategoriaIncidente | null> {
-        const query = 'SELECT * FROM categorias_incidente WHERE id = $1';
-        const result = await pool.query(query, [id]);
-        return result.rows.length ? result.rows[0] : null;
-    }
-
     // --- REPORTES ---
     /**
-     * Crea un nuevo reporte insertando latitud y longitud.
-     * El campo 'ubicacion' de PostGIS se genera automáticamente via trigger.
-     *
-     * @param data - DTO con datos del reporte (categoria_id, titulo, descripcion, coordenadas)
-     * @returns El reporte creado con ubicacion GeoJSON
+     * Crea un nuevo reporte insertando latitud y longitud, lo cual dispara la generación
+     * automática del campo 'ubicacion' de PostGIS.
      */
     static async crear(data: ICreateReporteDTO): Promise<IReporte> {
         const query: QueryConfig = {
             name: 'crear-reporte',
             text: `
-                INSERT INTO reportes (categoria_id, titulo, descripcion, latitud, longitud, id_ciudadano, metadata, direccion)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                INSERT INTO reportes (categoria_id, titulo, descripcion, latitud, longitud, id_ciudadano, metadata)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
                 RETURNING *, ST_AsGeoJSON(ubicacion)::json as ubicacion;
             `,
             values: [
@@ -65,7 +44,6 @@ export class ReporteRepository {
                 data.longitud,
                 data.id_ciudadano,
                 data.metadata || {},
-                data.direccion,
             ],
         };
 
@@ -74,12 +52,7 @@ export class ReporteRepository {
     }
 
     /**
-     * Obtiene todos los reportes con paginación y filtros dinámicos.
-     *
-     * @param limit - Cantidad máxima de resultados por página
-     * @param offset - Número de registros a saltar
-     * @param filtros - Filtros opcionales (estado, categoria_id)
-     * @returns Objeto con total de registros y array de reportes
+     * Obtiene todos los reportes con soporte para paginación y filtros dinámicos.
      */
     static async obtenerTodos(
         limit: number,
@@ -118,12 +91,6 @@ export class ReporteRepository {
         };
     }
 
-    /**
-     * Obtiene un reporte por su ID con ubicación GeoJSON.
-     *
-     * @param id - UUID del reporte
-     * @returns El reporte encontrado o null si no existe
-     */
     static async obtenerPorId(id: string): Promise<IReporte | null> {
         const query: QueryConfig = {
             name: 'obtener-reporte-id',
@@ -135,14 +102,6 @@ export class ReporteRepository {
         return result.rows.length ? result.rows[0] : null;
     }
 
-    /**
-     * Obtiene los reportes creados por un ciudadano específico.
-     *
-     * @param uid - ID del ciudadano (firebase_uid)
-     * @param limit - Cantidad máxima de resultados
-     * @param offset - Número de registros a saltar
-     * @returns Objeto con total y array de reportes del ciudadano
-     */
     static async obtenerPorCiudadano(
         uid: string,
         limit: number,
@@ -170,13 +129,6 @@ export class ReporteRepository {
         };
     }
 
-    /**
-     * Actualiza parcialmente un reporte (solo campos enviados).
-     *
-     * @param id - UUID del reporte a actualizar
-     * @param data - DTO con campos opcionales a modificar
-     * @returns El reporte actualizado o null si no existe
-     */
     static async actualizarParcial(id: string, data: IUpdateReporteDTO): Promise<IReporte | null> {
         const entries = Object.entries(data).filter(([_, v]) => v !== undefined);
         if (entries.length === 0) return null;
@@ -193,12 +145,6 @@ export class ReporteRepository {
         return result.rows.length ? result.rows[0] : null;
     }
 
-    /**
-     * Elimina un reporte de la base de datos.
-     *
-     * @param id - UUID del reporte a eliminar
-     * @returns true si se eliminó al menos una fila, false en caso contrario
-     */
     static async eliminar(id: string): Promise<boolean> {
         const query: QueryConfig = {
             name: 'eliminar-reporte',
@@ -211,16 +157,7 @@ export class ReporteRepository {
 
     // --- HISTORIAL Y ESTADOS ---
     /**
-     * Actualiza el estado del reporte y registra el cambio en el historial,
-     * todo dentro de una transacción atómica.
-     *
-     * @param reporteId - UUID del reporte
-     * @param estadoAnterior - Estado previo del reporte
-     * @param estadoNuevo - Nuevo estado a asignar
-     * @param idUsuarioModificador - ID del usuario que realiza el cambio
-     * @param comentarios - Comentario opcional sobre el cambio
-     * @returns El reporte actualizado
-     * @throws Lanza error si la transacción falla, haciendo rollback automático
+     * Actualiza el estado del reporte y crea una entrada en el historial dentro de una transacción.
      */
     static async actualizarEstadoConHistorial(
         reporteId: string,
@@ -264,12 +201,6 @@ export class ReporteRepository {
         }
     }
 
-    /**
-     * Obtiene el historial de cambios de estado de un reporte.
-     *
-     * @param reporteId - UUID del reporte
-     * @returns Array de entradas de historial ordenadas por fecha descendente
-     */
     static async obtenerHistorialPorReporte(reporteId: string): Promise<IHistorialEstado[]> {
         const query: QueryConfig = {
             name: 'obtener-historial',
