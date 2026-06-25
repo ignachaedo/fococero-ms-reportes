@@ -28,8 +28,8 @@ export const envs = {
     // URL del API Gateway (para CORS estricto)
     API_GATEWAY_URL: env.get('API_GATEWAY_URL').default('http://localhost:3000').asString(),
 
-    //URL del Microservicio de Multimedia 
-    MULTIMEDIA_SERVICE_URL: env.get('MULTIMEDIA_SERVICE_URL').required().asString(),
+    //URL del Microservicio de Multimedia (opcional — si no existe, se salta la vinculación)
+    MULTIMEDIA_SERVICE_URL: env.get('MULTIMEDIA_SERVICE_URL').default('').asString(),
 
     // Firebase y Seguridad
     FIREBASE_PROJECT_ID: env.get('FIREBASE_PROJECT_ID').required().asString(),

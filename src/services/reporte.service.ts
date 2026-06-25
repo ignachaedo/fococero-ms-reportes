@@ -47,6 +47,10 @@ export class ReporteService {
         userId: string,
         reporteId: string,
     ) {
+        if (!envs.MULTIMEDIA_SERVICE_URL) {
+            logger.warn(`⚠️ ms-multimedia no configurado. Se omite vinculación de imagen ${id_multimedia}`);
+            return;
+        }
         try {
             const url = `${envs.MULTIMEDIA_SERVICE_URL}/api/v1/multimedia/${id_multimedia}/vincular`;
 
