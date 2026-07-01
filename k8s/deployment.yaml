@@ -1,99 +1,63 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: ms-reportes
-    namespace: fococero
-    labels:
+  name: ms-reportes
+  namespace: fococero
+  labels:
+    app: ms-reportes
+    tier: backend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ms-reportes
+  template:
+    metadata:
+      labels:
         app: ms-reportes
         tier: backend
-spec:
-    replicas: 2
-    strategy:
-        type: RollingUpdate
-        rollingUpdate:
-            maxSurge: 1
-            maxUnavailable: 0
-    selector:
-        matchLabels:
-            app: ms-reportes
-    template:
-        metadata:
-            labels:
-                app: ms-reportes
-                tier: backend
-        spec:
-            terminationGracePeriodSeconds: 30
-            containers:
-                - name: ms-reportes
-                  image: 486507079259.dkr.ecr.us-east-1.amazonaws.com/fococero-ms-reportes:${IMAGE_TAG}
-                  imagePullPolicy: Always
-                  ports:
-                      - containerPort: 3004
-                        protocol: TCP
-                  env:
-                      - name: PORT
-                        value: '3004'
-                      - name: NODE_ENV
-                        value: 'production'
-                      # Base de Datos
-                      - name: DB_HOST
-                        value: 'db-fococero'
-                      - name: DB_PORT
-                        value: '5432'
-                      - name: DB_USER
-                        valueFrom: { secretKeyRef: { name: ms-reportes-secrets, key: DB_USER } }
-                      - name: DB_PASSWORD
-                        valueFrom: { secretKeyRef: { name: ms-reportes-secrets, key: DB_PASSWORD } }
-                      - name: DB_NAME
-                        value: 'reportes_db'
-                      # RabbitMQ
-                      - name: RABBITMQ_URL
-                        valueFrom:
-                            { secretKeyRef: { name: ms-reportes-secrets, key: RABBITMQ_URL } }
-                      # Firebase
-                      - name: FIREBASE_PROJECT_ID
-                        valueFrom:
-                            { secretKeyRef: { name: firebase-secret, key: FIREBASE_PROJECT_ID } }
-                      - name: FIREBASE_CLIENT_EMAIL
-                        valueFrom:
-                            { secretKeyRef: { name: firebase-secret, key: FIREBASE_CLIENT_EMAIL } }
-                      - name: FIREBASE_PRIVATE_KEY
-                        valueFrom:
-                            { secretKeyRef: { name: firebase-secret, key: FIREBASE_PRIVATE_KEY } }
-                      # Seguridad y Extras
-                      - name: INTERNAL_SECRET_TOKEN
-                        valueFrom:
-                            {
-                                secretKeyRef:
-                                    { name: ms-reportes-secrets, key: INTERNAL_SECRET_TOKEN },
-                            }
-                      - name: JWT_SECRET
-                        valueFrom: { secretKeyRef: { name: ms-reportes-secrets, key: JWT_SECRET } }
-                      - name: MULTIMEDIA_SERVICE_URL
-                        value: 'http://ms-multimedia:3005'
-                      # Eureka Desactivado
-                      - name: EUREKA_HOST
-                        value: 'eureka-server'
-                      - name: EUREKA_CLIENT_REGISTERWITHEUREKA
-                        value: 'false'
-                      - name: EUREKA_CLIENT_FETCHREGISTRY
-                        value: 'false'
-                  resources:
-                      requests:
-                          cpu: '100m'
-                          memory: '128Mi'
-                      limits:
-                          cpu: '500m'
-                          memory: '256Mi'
-                  livenessProbe:
-                      httpGet:
-                          path: /api/health
-                          port: 3004
-                      initialDelaySeconds: 30
-                      periodSeconds: 15
-                  readinessProbe:
-                      httpGet:
-                          path: /api/health
-                          port: 3004
-                      initialDelaySeconds: 20
-                      periodSeconds: 10
+    spec:
+      containers:
+        - name: ms-reportes
+          image: 711147367899.dkr.ecr.us-east-1.amazonaws.com/fococero-ms-reportes:${IMAGE_TAG}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3004
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: fococero-env
+          env:
+            - name: PORT
+              value: "3004"
+            - name: DB_NAME
+              value: "reportes_db"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3004
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3004
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+      terminationGracePeriodSeconds: 30
