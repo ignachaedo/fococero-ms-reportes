@@ -71,6 +71,7 @@ app.use(metricsMiddleware);
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
+    skip: (req) => req.path === '/api/health' || req.path === '/metrics',
     message: {
         ok: false,
         error: 'Demasiadas peticiones al sistema de reportes. Espere un momento.',

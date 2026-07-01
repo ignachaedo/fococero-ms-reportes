@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: ms-reportes
-          image: 711147367899.dkr.ecr.us-east-1.amazonaws.com/fococero-ms-reportes:${IMAGE_TAG}
+          image: 486507079259.dkr.ecr.us-east-1.amazonaws.com/fococero-ms-reportes:${IMAGE_TAG}
           imagePullPolicy: Always
           ports:
             - containerPort: 3004

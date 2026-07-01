@@ -2,22 +2,29 @@
 import 'dotenv/config';
 import * as env from 'env-var';
 
+const nodeEnv = env.get('NODE_ENV').default('development').asString();
 const dbHostRaw = env.get('DB_HOST').asString();
 const isDocker = dbHostRaw === 'db-fococero';
 
 export const envs = {
     PORT: env.get('PORT').default(3004).asPortNumber(),
-    NODE_ENV: env.get('NODE_ENV').default('development').asString(),
+    NODE_ENV: nodeEnv,
     EUREKA_HOST: env.get('EUREKA_HOST').default('localhost').asString(),
 
     // Base de Datos
     DB_USER: env.get('DB_USER').required().asString(),
     DB_PASSWORD: env.get('DB_PASSWORD').required().asString(),
     DB_NAME: env.get('DB_NAME').required().asString(),
-    DB_HOST: isDocker ? dbHostRaw : env.get('DB_HOST_LOCAL').default('localhost').asString(),
-    DB_PORT: isDocker
-        ? env.get('DB_PORT').default(5432).asPortNumber()
-        : env.get('DB_PORT_LOCAL').default(5433).asPortNumber(),
+    DB_HOST: nodeEnv === 'production'
+        ? env.get('DB_HOST').required().asString()
+        : isDocker
+            ? dbHostRaw
+            : env.get('DB_HOST_LOCAL').default('localhost').asString(),
+    DB_PORT: nodeEnv === 'production'
+        ? env.get('DB_PORT').required().asPortNumber()
+        : isDocker
+            ? env.get('DB_PORT').default(5432).asPortNumber()
+            : env.get('DB_PORT_LOCAL').default(5433).asPortNumber(),
 
     // URL del API Gateway (para CORS estricto)
     API_GATEWAY_URL: env.get('API_GATEWAY_URL').default('http://localhost:3000').asString(),
