@@ -19,17 +19,11 @@ export const envs = {
         ? env.get('DB_PORT').default(5432).asPortNumber()
         : env.get('DB_PORT_LOCAL').default(5433).asPortNumber(),
 
-    // RabbitMQ
-    RABBITMQ_URL: env.get('RABBITMQ_URL').required().asString(),
-
-    // Token secreto para autenticación interna entre microservicios
-    INTERNAL_SECRET_TOKEN: env.get('INTERNAL_SECRET_TOKEN').required().asString(),
-
     // URL del API Gateway (para CORS estricto)
     API_GATEWAY_URL: env.get('API_GATEWAY_URL').default('http://localhost:3000').asString(),
 
-    //URL del Microservicio de Multimedia (opcional — si no existe, se salta la vinculación)
-    MULTIMEDIA_SERVICE_URL: env.get('MULTIMEDIA_SERVICE_URL').default('').asString(),
+    //URL del Microservicio de Multimedia 
+    MULTIMEDIA_SERVICE_URL: env.get('MULTIMEDIA_SERVICE_URL').required().asString(),
 
     // Firebase y Seguridad
     FIREBASE_PROJECT_ID: env.get('FIREBASE_PROJECT_ID').required().asString(),

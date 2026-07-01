@@ -38,14 +38,14 @@ app.use(
                 defaultSrc: ["'self'"],
                 scriptSrc: ["'self'"],
                 styleSrc: ["'self'"],
-                imgSrc: ["'self'", 'data:'],
+                imgSrc: ["'self'", "data:"],
             },
         },
     }),
 );
 
 // Nota: Usualmente el API Gateway maneja los CORS, pero lo dejamos por seguridad en capa 2
-const allowedOrigins = envs.API_GATEWAY_URL
+const allowedOrigins = envs.API_GATEWAY_URL 
     ? [envs.API_GATEWAY_URL, 'http://localhost:5173', 'https://fococero.cl']
     : ['http://localhost:5173', 'https://fococero.cl'];
 app.use(
@@ -122,11 +122,8 @@ const server = app.listen(envs.PORT, async () => {
     logger.info(`📖 Documentación: http://localhost:${envs.PORT}/api/docs`);
     logger.info(`====================================================`);
 
-    if (process.env.EUREKA_CLIENT_REGISTERWITHEUREKA === 'true') {
-        initEurekaClient('ms-reportes', Number(envs.PORT));
-    } else {
-        logger.info('ℹ️  Registro en Eureka desactivado por configuración.');
-    }
+    initEurekaClient('ms-reportes', Number(envs.PORT));
+    
 });
 
 // 🛑 6. APAGADO ELEGANTE (GRACEFUL SHUTDOWN)
