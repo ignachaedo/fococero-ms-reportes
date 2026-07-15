@@ -90,6 +90,17 @@ app.get('/api/health', (req: Request, res: Response) => {
     });
 });
 
+// Health check para Docker (sin auth, debe matchear antes del router general)
+app.get('/health', (req: Request, res: Response) => {
+    res.status(200).json({
+        ok: true,
+        status: 'UP',
+        service: 'ms-reportes',
+        environment: envs.NODE_ENV,
+        timestamp: new Date().toISOString(),
+    });
+});
+
 // 📊 Endpoint de métricas Prometheus
 app.get('/metrics', metricsHandler);
 
