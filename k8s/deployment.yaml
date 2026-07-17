@@ -37,6 +37,8 @@ spec:
                         value: '3004'
                       - name: DB_NAME
                         value: 'reportes_db'
+                      - name: MULTIMEDIA_SERVICE_URL
+                        value: 'http://ms-multimedia:3005'
                   resources:
                       requests:
                           cpu: '100m'
