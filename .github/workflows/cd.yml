@@ -91,7 +91,7 @@ jobs:
 
       - name: Crear secreto de entorno
         run: |
-          printf '%s' "${{ secrets.FIREBASE_PRIVATE_KEY }}" > /tmp/firebase-key.pem
+          printf '%s\n' "${{ secrets.FIREBASE_PRIVATE_KEY }}" | sed -e 's/\\n/\n/g' > /tmp/firebase-key.pem
           kubectl create secret generic fococero-env \
             --from-literal=DB_USER="${{ secrets.DB_USER }}" \
             --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
@@ -105,8 +105,10 @@ jobs:
             --from-literal=API_GATEWAY_URL="${{ secrets.API_GATEWAY_URL || 'http://api-gateway:3000' }}" \
             --from-literal=NODE_ENV=production \
             --from-literal=MULTIMEDIA_SERVICE_URL="${{ secrets.MULTIMEDIA_SERVICE_URL || 'http://ms-multimedia:3005' }}" \
-            --from-literal=RABBITMQ_URL="${{ secrets.RABBITMQ_URL }}" \
             --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            --from-literal=RABBITMQ_URL="${{ secrets.RABBITMQ_URL }}" \
+            --from-literal=GATEWAY_URL="${{ secrets.GATEWAY_URL || 'http://api-gateway:3000' }}" \
+            --from-literal=FIREBASE_STORAGE_BUCKET="${{ secrets.FIREBASE_STORAGE_BUCKET }}" \
             -n "${{ env.K8S_NAMESPACE }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
